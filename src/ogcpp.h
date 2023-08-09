@@ -97,6 +97,12 @@ namespace ogcpp {
 			virtual void keypress (GdkEventKey* event) {}
 			virtual void update () {};
 	};
+	class Collision {
+		public:
+			string name;
+			Sprite* sprite;
+			virtual void method () {}
+	};
 	class Stage {
 		public:
 			Stage(string title = "") {
@@ -176,7 +182,7 @@ namespace ogcpp {
 			}
 			void update () {
 				window.set_title(title);
-				window.set_default_size(size.width, size.height);
+				window.set_size_request(size.width, size.height);
 			}
 	};
 	class Figure : public Sprite {
@@ -190,14 +196,25 @@ namespace ogcpp {
 			Stage* parent;
 			Gtk::Image element;
 			virtual void keypress (GdkEventKey* event) {}
+			double distance (Sprite* reference) {
+				double ogcpp_temporal_xDistance = max(parent->toPixel(position).x, parent->toPixel(reference->position).x) - min(parent->toPixel(position).x, parent->toPixel(reference->position).x);
+				double ogcpp_temporal_yDistance = max(parent->toPixel(position).y, parent->toPixel(reference->position).y) - min(parent->toPixel(position).y, parent->toPixel(reference->position).y);
+				return sqrt((ogcpp_temporal_xDistance*ogcpp_temporal_xDistance)+(ogcpp_temporal_yDistance*ogcpp_temporal_yDistance));
+			}
 			void update () {
 				parent->system.move(element, parent->toPixel(position).x, parent->toPixel(position).y);
 				element.set(costume);
-				if (visibility) {
-					element.show();
-				} else {
+				Position ogcpp_temporal_position = parent->toPixel(position);
+				if (ogcpp_temporal_position.y>(parent->size.height) || ogcpp_temporal_position.x>(parent->size.width)) {
 					element.hide();
+				} else {
+					if (visibility) {
+						element.show();
+					} else {
+						element.hide();
+					}
 				}
+				parent->update();
 			}
 	};
 	class Player : public Figure {
