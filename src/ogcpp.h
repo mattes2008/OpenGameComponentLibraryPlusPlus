@@ -97,12 +97,6 @@ namespace ogcpp {
 			virtual void keypress (GdkEventKey* event) {}
 			virtual void update () {};
 	};
-	class Collision {
-		public:
-			string name;
-			Sprite* sprite;
-			virtual void method () {}
-	};
 	class Stage {
 		public:
 			Stage(string title = "") {
