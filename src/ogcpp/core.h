@@ -4,8 +4,9 @@
 #include <gtkmm.h>
 using namespace std;
 
+const double pi = 3.141592653589793;
+
 namespace ogcpp {
-	const double pi = 3.141592653589793;
 	class Position {
 		public:
 			double x;
@@ -26,6 +27,10 @@ namespace ogcpp {
 	};
 	class Sprite {
 		public:
+			Sprite() {
+				size.width = 50;
+				size.height = 50;
+			}
 			Position position;
 			Position move (double direction, double length) {
 				position.x += sin((direction/180)*pi)*length;
@@ -61,15 +66,47 @@ namespace ogcpp {
 			Position moveRelative (double direction, double length) {
 				move(rotation+direction, length);
 				update();
-				return position;
+				return this->position;
+			}
+			double distance (Sprite* reference) {
+				double ogcpp_temporal_xDistance = max(position.x, reference->position.x) - min(position.x, reference->position.x);
+				double ogcpp_temporal_yDistance = max(position.y, reference->position.y) - min(position.y, reference->position.y);
+				return sqrt((ogcpp_temporal_xDistance*ogcpp_temporal_xDistance)+(ogcpp_temporal_yDistance*ogcpp_temporal_yDistance));
+			}
+			Size size;
+			Size resize (int width, int height) {
+				size.width = width;
+				size.height = height;
+				update();
+				return size;
+			}
+			Size resize (double xFactor, double yFactor) {
+				size.width *= xFactor;
+				size.height *= yFactor;
+				update();
+				return size;
+			}
+			Size resize (double factor) {
+				size.width *= factor;
+				size.height *= factor;
+				update();
+				return size;
+			}
+			Size resize (Size size) {
+				this->size.width = size.width;
+				this->size.height = size.height;
+				update();
+				return size;
 			}
 			double rotation = 0;
 			double rotate (double value) {
 				rotation += value;
+				update();
 				return rotation;
 			}
 			double rotateTo (double value) {
 				rotation = value;
+				update();
 				return rotation;
 			}
 			bool visibility = true;
@@ -95,21 +132,17 @@ namespace ogcpp {
 				return costume;
 			}
 			virtual void keypress (GdkEventKey* event) {}
-			struct {
-				string type = "range";
-				double value = 25;
-			} hitbox;
-			virtual void update () {};
-			virtual void on_update () {};
+			virtual void update () {}
 	};
 	class Stage {
 		public:
-			Stage(string title = "") {
+			Stage(string title = "", int width = 200, int height = 200) {
 				window.add(system);
 				system.show();
-				window.set_resizable(false);
 				rename(title);
+				resize(width, height);
 				window.signal_key_press_event().connect(sigc::mem_fun(*this, &Stage::keypress));
+				update();
 			}
 			string title;
 			string rename (string title) {
@@ -122,63 +155,72 @@ namespace ogcpp {
 				size.width = width;
 				size.height = height;
 				update();
-				return size;
-			}
-			Size resize (double factor) {
-				size.width *= factor;
-				size.height *= factor;
-				update();
+				updateAllChilds();
 				return size;
 			}
 			Size resize (double xFactor, double yFactor) {
 				size.width *= xFactor;
 				size.height *= yFactor;
 				update();
+				updateAllChilds();
+				return size;
+			}
+			Size resize (double factor) {
+				size.width *= factor;
+				size.height *= factor;
+				update();
+				updateAllChilds();
 				return size;
 			}
 			Size resize (Size size) {
 				this->size.width = size.width;
 				this->size.height = size.height;
 				update();
-				return size;
+				updateAllChilds();
+				return this->size;
 			}
 			Position toPixel (double x, double y) {
 				Position ogcpp_temporal_position(
-					(size.width/2)+x,
-					(size.height/2)-y
+					(size.width/2) + x,
+					(size.height/2) - y
 				);
 				return ogcpp_temporal_position;
 			}
 			Position toPixel (Position position) {
 				Position ogcpp_temporal_position(
-					(size.width/2)+position.x,
-					(size.height/2)-position.y
+					(size.width/2) + position.x,
+					(size.height/2) - position.y
 				);
 				return ogcpp_temporal_position;
 			}
 			Position toCoordinate (double x, double y) {
 				Position ogcpp_temporal_position(
-					x-(size.width/2),
-					(y-(size.height/2))*-1
+					x - (size.width/2),
+					(y - (size.height/2))*-1
 				);
 				return ogcpp_temporal_position;
 			}
 			Position toCoordinate (Position position) {
 				Position ogcpp_temporal_position(
-					position.x-(size.width/2),
-					(position.y-(size.height/2))*-1
+					position.x - (size.width/2),
+					(position.y - (size.height/2))*-1
 				);
 				return ogcpp_temporal_position;
 			}
-			Gtk::Window window;
-			Gtk::Fixed system;
-			vector<Sprite*> child = {};
 			bool keypress (GdkEventKey* event) {
 				for (Sprite* i : child) {
 					i->keypress(event);
 				}
 				return false;
 			}
+			Gtk::Window window;
+			Gtk::Fixed system;
+			vector<Sprite*> child = {};
+			void updateAllChilds () {
+				for (Sprite* i : child) {
+					i->update();
+				}
+			};
 			void update () {
 				window.set_title(title);
 				window.set_size_request(size.width, size.height);
@@ -186,44 +228,31 @@ namespace ogcpp {
 	};
 	class Figure : public Sprite {
 		public:
-			Figure(Stage* stage, string src) {
-				stage->system.put(element, 0, 0);
-				parent = stage;
+			Figure(Stage* parent, string src) {
+				parent->system.put(element, 0, 0);
+				this->parent = parent;
 				changeCostume(src);
-				stage->child.push_back(this);
+				parent->child.push_back(this);
+				update();
 			}
-			Stage* parent;
 			Gtk::Image element;
-			virtual void keypress (GdkEventKey* event) {}
-			double distance (Sprite* reference) {
-				double ogcpp_temporal_xDistance = max(parent->toPixel(position).x, parent->toPixel(reference->position).x) - min(parent->toPixel(position).x, parent->toPixel(reference->position).x);
-				double ogcpp_temporal_yDistance = max(parent->toPixel(position).y, parent->toPixel(reference->position).y) - min(parent->toPixel(position).y, parent->toPixel(reference->position).y);
-				return sqrt((ogcpp_temporal_xDistance*ogcpp_temporal_xDistance)+(ogcpp_temporal_yDistance*ogcpp_temporal_yDistance));
-			}
-			bool collision (Sprite* reference) {
-				if (distance(reference)<=(hitbox.value+reference->hitbox.value)) {
-					return true;
-				} else {
-					return false;
-				}
-			}
-			void update () {
-				parent->system.move(element, parent->toPixel(position).x, parent->toPixel(position).y);
+			Stage* parent;
+			virtual void update () {
+				parent->system.move(element, parent->toPixel(position).x-(size.width/2), parent->toPixel(position).y-(size.height/2));
 				element.set(costume);
-				Position ogcpp_temporal_position = parent->toPixel(position);
-				if (ogcpp_temporal_position.y>(parent->size.height) || ogcpp_temporal_position.x>(parent->size.width)) {
+				if (!visibility) {
 					element.hide();
 				} else {
-					if (visibility) {
-						element.show();
-					} else {
+					if (parent->toPixel(position).x>(parent->size.width-size.width) || parent->toPixel(position).y>(parent->size.height-size.height)) {
 						element.hide();
+					} else {
+						element.show();
 					}
 				}
-				on_update();
 				parent->update();
+				onUpdate();
 			}
-			virtual void on_update () {};
+			virtual void onUpdate () {}
 	};
 	class Player : public Figure {
 		public:
@@ -233,18 +262,19 @@ namespace ogcpp {
 				int down = 115;
 				int right = 100;
 				int left = 97;
-			} key;
+			} keys;
 			double length = 10;
 			void keypress (GdkEventKey* event) {
-				if (event->keyval==key.up) {
+				if (event->keyval==keys.up) {
 					move("up", length);
-				} else if (event->keyval==key.down) {
+				} else if (event->keyval==keys.down) {
 					move("down", length);
-				} else if (event->keyval==key.right) {
+				} else if (event->keyval==keys.right) {
 					move("right", length);
-				} else if (event->keyval==key.left) {
+				} else if (event->keyval==keys.left) {
 					move("left", length);
 				}
+				update();
 			}
 	};
 }
