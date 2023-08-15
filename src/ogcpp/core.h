@@ -68,11 +68,6 @@ namespace ogcpp {
 				update();
 				return this->position;
 			}
-			double distance (Sprite* reference) {
-				double ogcpp_temporal_xDistance = max(position.x, reference->position.x) - min(position.x, reference->position.x);
-				double ogcpp_temporal_yDistance = max(position.y, reference->position.y) - min(position.y, reference->position.y);
-				return sqrt((ogcpp_temporal_xDistance*ogcpp_temporal_xDistance)+(ogcpp_temporal_yDistance*ogcpp_temporal_yDistance));
-			}
 			Size size;
 			Size resize (int width, int height) {
 				size.width = width;
@@ -132,6 +127,23 @@ namespace ogcpp {
 				return costume;
 			}
 			virtual void keypress (GdkEventKey* event) {}
+			double distance (Sprite* reference) {
+				double ogcpp_temporal_xDistance = max(position.x, reference->position.x) - min(position.x, reference->position.x);
+				double ogcpp_temporal_yDistance = max(position.y, reference->position.y) - min(position.y, reference->position.y);
+				return sqrt((ogcpp_temporal_xDistance*ogcpp_temporal_xDistance)+(ogcpp_temporal_yDistance*ogcpp_temporal_yDistance));
+			}
+			struct {
+				string type = "range";
+				double rangeRadius = 25;
+			} hitbox;
+			bool collision (Sprite* reference) {
+				double ogcpp_temporal_distance = distance(reference);
+				if (ogcpp_temporal_distance<=hitbox.rangeRadius+reference->hitbox.rangeRadius) {
+					return true;
+				} else {
+					return false;
+				}
+			}
 			virtual void update () {}
 	};
 	class Stage {
@@ -243,7 +255,7 @@ namespace ogcpp {
 				if (!visibility) {
 					element.hide();
 				} else {
-					if (parent->toPixel(position).x>(parent->size.width-size.width) || parent->toPixel(position).y>(parent->size.height-size.height)) {
+					if (parent->toPixel(position).x>(parent->size.width-(size.width/2)) || parent->toPixel(position).y>(parent->size.height-(size.height/2))) {
 						element.hide();
 					} else {
 						element.show();
