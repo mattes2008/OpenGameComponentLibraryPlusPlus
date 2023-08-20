@@ -1,7 +1,8 @@
-#include <iostream>
 #include <cmath>
 #include <vector>
-#include <gtkmm.h>
+#include <gtkmm/window.h>
+#include <gtkmm/fixed.h>
+#include <gtkmm/image.h>
 using namespace std;
 
 const double pi = 3.141592653589793;
@@ -31,6 +32,7 @@ namespace ogcpp {
 				size.width = 50;
 				size.height = 50;
 			}
+			string id = "";
 			Position position;
 			Position move (double direction, double length) {
 				position.x += sin((direction/180)*pi)*length;
@@ -228,6 +230,25 @@ namespace ogcpp {
 			Gtk::Window window;
 			Gtk::Fixed system;
 			vector<Sprite*> child = {};
+			Sprite* getChildById (string id) {
+				if (id=="") {
+					throw "invalid id";
+				} else {
+					vector<Sprite*> ogcpp_temporal_spriteList = {};
+					for (Sprite* i : child) {
+						if (i->id==id) {
+							ogcpp_temporal_spriteList.push_back(i);
+						}
+					}
+					if (ogcpp_temporal_spriteList.size()==1) {
+						return ogcpp_temporal_spriteList[0];
+					} else if (ogcpp_temporal_spriteList.size()<1) {
+						throw "child 'Sprite#" + id + "' does not exist";
+					} else {
+						throw "child 'Sprite#" + id + "' exists more then one time";
+					}
+				}
+			}
 			void updateAllChilds () {
 				for (Sprite* i : child) {
 					i->update();
@@ -240,7 +261,8 @@ namespace ogcpp {
 	};
 	class Figure : public Sprite {
 		public:
-			Figure(Stage* parent, string src) {
+			Figure(Stage* parent, string src, string id="") {
+				this->id = id;
 				parent->system.put(element, 0, 0);
 				this->parent = parent;
 				changeCostume(src);

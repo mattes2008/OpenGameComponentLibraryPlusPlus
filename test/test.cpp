@@ -1,4 +1,5 @@
 #include "../src/ogcpp.h"
+#include <iostream>
 using namespace ogcpp;
 
 int main (int argc, char* argv[]) {
