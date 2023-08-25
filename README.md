@@ -8,6 +8,7 @@ It contains different components, which help you to make your own game.
 ## Gtkmm
 
 This Library uses the C++ interface, <a href="https://www.gtkmm.org/en/index.html" target="blank">gtkmm</a>, of the GUI-Library <a href="https://www.gtk.org" target="blank">GTK+</a>
+**The links above lead to external websites, which aren't under my control. I do not have any influence on the content of them.**
 
 ## Get Started
 
@@ -61,3 +62,7 @@ You can also include only single components like "core".
 Compile the file (Example with g++):
 
 ```g++ main.cpp `pkg-config gtkmm-3.0 --cflags --libs` -o main ```
+
+## Disclaimer
+
+We assume no liability for any impact on your computer.
