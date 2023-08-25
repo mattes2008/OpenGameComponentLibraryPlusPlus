@@ -19,7 +19,7 @@ This Library uses the C++ interface, <a href="https://www.gtkmm.org/en/index.htm
 
 ### 2. Download
 
-- download the headerfiles of ogcpp: <a href="https://github.com/mattes2008/OpenGameComponentLibrary/archive/refs/heads/master.zip">here</a>
+- download the headerfiles of ogcpp <a href="https://github.com/mattes2008/OpenGameComponentLibrary/archive/refs/heads/master.zip">here</a>
 - extract the files of the zip-file
 - move the "src"-directory to your project directory
 
