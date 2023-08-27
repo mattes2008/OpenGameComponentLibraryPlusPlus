@@ -26,6 +26,17 @@ namespace ogcpp {
 				this->height = height;
 			}
 	};
+
+	enum Hitbox {
+		Range
+	};
+	enum Direction {
+		Up,
+		Down,
+		Right,
+		Left
+	};
+
 	class Sprite {
 		public:
 			Sprite() {
@@ -135,7 +146,7 @@ namespace ogcpp {
 				return sqrt((ogcpp_temporal_xDistance*ogcpp_temporal_xDistance)+(ogcpp_temporal_yDistance*ogcpp_temporal_yDistance));
 			}
 			struct {
-				string type = "range";
+				Hitbox type = Range;
 				double rangeRadius = 25;
 			} hitbox;
 			bool collision (Sprite* reference) {
