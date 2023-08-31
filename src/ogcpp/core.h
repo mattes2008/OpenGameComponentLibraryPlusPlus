@@ -26,7 +26,6 @@ namespace ogcpp {
 				this->height = height;
 			}
 	};
-
 	enum Hitbox {
 		Range
 	};
@@ -36,7 +35,6 @@ namespace ogcpp {
 		Right,
 		Left
 	};
-
 	class Sprite {
 		public:
 			Sprite() {
