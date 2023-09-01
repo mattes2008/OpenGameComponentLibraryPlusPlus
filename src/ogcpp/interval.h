@@ -1,6 +1,8 @@
 #include <functional>
 #include <thread>
 #include <chrono>
+#ifndef OGCPP_INTERVAL_H
+#define OGCPP_INTERVAL_H
 using namespace std;
 
 namespace ogcpp {
@@ -31,3 +33,4 @@ namespace ogcpp {
 			bool state = true;
 	};
 }
+#endif

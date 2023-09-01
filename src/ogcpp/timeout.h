@@ -1,6 +1,8 @@
 #include <functional>
 #include <thread>
 #include <chrono>
+#ifndef OGCPP_TIMEOUT_H
+#define OGCPP_TIMEOUT_H
 using namespace std;
 
 namespace ogcpp {
@@ -22,3 +24,4 @@ namespace ogcpp {
 			function<void()> method;
 	};
 }
+#endif
